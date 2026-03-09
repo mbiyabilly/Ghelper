@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>DHCP Server Installation - Bmbiya SysAdmin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+--bg:#0d0f14;
+--surface:#13161e;
+--surface2:#1a1e2a;
+--border:#252a38;
+--accent:#e85d26;
+--accent2:#f5893a;
+--text:#e8eaf0;
+--muted:#7a8099;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:var(--bg);
+color:var(--text);
+font-family:'Syne',sans-serif;
+line-height:1.7;
+}
+
+header{
+position:sticky;
+top:0;
+background:rgba(13,15,20,.9);
+backdrop-filter:blur(10px);
+border-bottom:1px solid var(--border);
+padding:18px 40px;
+z-index:100;
+}
+
+.logo{
+font-weight:800;
+font-size:20px;
+color:var(--text);
+text-decoration:none;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:60px 30px;
+}
+
+h1{
+font-size:42px;
+margin-bottom:20px;
+}
+
+h2{
+margin-top:50px;
+margin-bottom:15px;
+font-size:24px;
+color:var(--accent2);
+}
+
+p{
+color:var(--muted);
+margin-bottom:20px;
+}
+
+ul{
+margin-left:20px;
+margin-bottom:20px;
+color:var(--muted);
+}
+
+code{
+background:var(--surface2);
+padding:3px 6px;
+border-radius:5px;
+font-family:'JetBrains Mono',monospace;
+color:var(--accent2);
+}
+
+pre{
+background:var(--surface);
+border:1px solid var(--border);
+padding:18px;
+border-radius:10px;
+overflow:auto;
+position:relative;
+margin-bottom:25px;
+}
+
+pre code{
+background:none;
+color:#e8eaf0;
+}
+
+.copy-btn{
+position:absolute;
+top:10px;
+right:10px;
+background:var(--surface2);
+border:1px solid var(--border);
+color:var(--muted);
+padding:4px 10px;
+font-size:12px;
+border-radius:5px;
+cursor:pointer;
+}
+
+.copy-btn:hover{
+color:white;
+border-color:var(--accent);
+}
+
+.diagram{
+background:var(--surface);
+border:1px solid var(--border);
+padding:20px;
+border-radius:10px;
+font-family:'JetBrains Mono',monospace;
+color:#ccc;
+margin-bottom:30px;
+white-space:pre;
+}
+
+footer{
+text-align:center;
+padding:40px;
+border-top:1px solid var(--border);
+color:var(--muted);
+margin-top:60px;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<header>
+<a class="logo" href="#">⚙️ CFITech Ops</a>
+</header>
+
+
+<div class="container">
+
+<h1>Installation et Configuration d'un Serveur DHCP</h1>
+
+<p>
+Un serveur <code>DHCP (Dynamic Host Configuration Protocol)</code> est essentiel dans les réseaux professionnels pour attribuer automatiquement des adresses IP, DNS et passerelles aux appareils connectés.
+</p>
+
+<p>Ce guide explique comment :</p>
+
+<ul>
+<li>Installer et configurer un serveur DHCP sous Linux</li>
+<li>Gérer les plages d'adresses IP dynamiques et statiques</li>
+<li>Configurer le NAT pour permettre l'accès Internet</li>
+<li>Surveiller et dépanner le service DHCP</li>
+</ul>
+
+
+<h2>Schéma Réseau</h2>
+
+<div class="diagram">
++-------------------+       +-------------------+       +----------------------+
+|   Client DHCP     |       |   Serveur DHCP    |       |   Routeur/Passerelle |
+| (Obtenir IP auto) | <---> | (Linux - enp0s3)  | <---> |   (192.168.10.254)   |
++-------------------+       +-------------------+       +----------------------+
+       ▲                                                         |
+       |                                                         ▼
++-------------------+                                   +-------------------+
+|   Internet        |                                   |   Autres Clients  |
+|  (via NAT)        |                                   | (DHCP ou Static)  |
++-------------------+                                   +-------------------+
+</div>
+
+
+<h2>Installation des paquets</h2>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+sudo apt update
+sudo apt install isc-dhcp-server iptables-persistent vim -y
+</code>
+</pre>
+
+
+<h2>Configuration IP statique</h2>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+sudo vi /etc/netplan/01-static-ip.yaml
+</code>
+</pre>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+network:
+ version: 2
+ renderer: networkd
+ ethernets:
+   enp0s3:
+     addresses:
+       - 192.168.10.2/24
+     nameservers:
+       addresses: [8.8.8.8,8.8.4.4]
+     routes:
+       - to: default
+         via: 192.168.10.254
+</code>
+</pre>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+sudo netplan apply
+</code>
+</pre>
+
+
+<h2>Définir l'interface DHCP</h2>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+sudo cp /etc/default/isc-dhcp-server /etc/default/isc-dhcp-server.bkp
+echo 'INTERFACESv4="enp0s3"' | sudo tee /etc/default/isc-dhcp-server
+</code>
+</pre>
+
+
+<h2>Configuration DHCP</h2>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+sudo cp /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.bkp
+sudo vim /etc/dhcp/dhcpd.conf
+</code>
+</pre>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+option domain-name "example.local";
+option domain-name-servers 8.8.8.8,1.1.1.1;
+default-lease-time 600;
+max-lease-time 7200;
+ddns-update-style none;
+authoritative;
+
+subnet 192.168.10.0 netmask 255.255.255.0 {
+ range 192.168.10.50 192.168.10.200;
+ option routers 192.168.10.254;
+ option subnet-mask 255.255.255.0;
+}
+
+host reserved-client {
+ hardware ethernet 08:00:27:bd:22:0c;
+ fixed-address 192.168.10.50;
+}
+</code>
+</pre>
+
+
+<h2>Démarrage du service</h2>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+sudo dhcpd -t
+sudo systemctl restart isc-dhcp-server
+sudo systemctl enable isc-dhcp-server
+sudo systemctl status isc-dhcp-server
+</code>
+</pre>
+
+
+<h2>Activation du NAT</h2>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+</code>
+</pre>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+sudo iptables -t nat -A POSTROUTING -o enp0s8 -j MASQUERADE
+sudo iptables -A FORWARD -i enp0s3 -o enp0s8 -m state --state RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A FORWARD -i enp0s8 -o enp0s3 -j ACCEPT
+sudo iptables-save | sudo tee /etc/iptables/rules.v4
+</code>
+</pre>
+
+
+<h2>Surveillance et vérification</h2>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+sudo dhcp-lease-list
+tail -f /var/log/syslog | grep dhcpd
+journalctl -xeu isc-dhcp-server.service
+</code>
+</pre>
+
+
+<h2>Dépannage côté client</h2>
+
+<pre>
+<button class="copy-btn">copy</button>
+<code>
+sudo dhclient -v
+ip a
+</code>
+</pre>
+
+</div>
+
+
+<footer>
+Built by <strong>mbiyabilly</strong> · SysAdmin Documentation
+</footer>
+
+
+<script>
+
+const buttons=document.querySelectorAll(".copy-btn")
+
+buttons.forEach(btn=>{
+btn.addEventListener("click",()=>{
+const code=btn.nextElementSibling.innerText
+navigator.clipboard.writeText(code)
+btn.innerText="copied"
+setTimeout(()=>btn.innerText="copy",2000)
+})
+})
+
+</script>
+
+</body>
+</html>

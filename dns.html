@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installation DNS - BIND9</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Segoe UI,Arial;
+    background:#0f172a;
+    color:#e2e8f0;
+}
+
+header{
+    background:linear-gradient(90deg,#2563eb,#06b6d4);
+    padding:25px;
+    text-align:center;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.container{
+    width:90%;
+    max-width:1100px;
+    margin:auto;
+    padding:30px 0;
+}
+
+.section{
+    background:#1e293b;
+    margin-bottom:20px;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 0 15px rgba(0,0,0,0.5);
+}
+
+.section h2{
+    color:#38bdf8;
+}
+
+.code{
+    background:#020617;
+    padding:15px;
+    border-radius:8px;
+    font-family:monospace;
+    overflow:auto;
+    position:relative;
+}
+
+button.copy{
+    position:absolute;
+    right:10px;
+    top:10px;
+    background:#38bdf8;
+    border:none;
+    padding:6px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+button.copy:hover{
+    background:#0ea5e9;
+}
+
+.toggle{
+    cursor:pointer;
+    color:#22c55e;
+    margin-bottom:10px;
+    display:inline-block;
+}
+
+footer{
+    text-align:center;
+    padding:20px;
+    background:#020617;
+    margin-top:40px;
+    font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+Serveur DNS avec BIND9 sur Ubuntu Server
+</header>
+
+<div class="container">
+
+<div class="section">
+<h2>Configuration IP statique avec Netplan</h2>
+
+<div class="toggle" onclick="toggle('netplan')">Afficher / Masquer</div>
+
+<div id="netplan">
+
+<p>Édition du fichier :</p>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>sudo nano /etc/netplan/00-installer-config.yaml</pre>
+</div>
+
+<p>Contenu :</p>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+network:
+  version: 2
+  ethernets:
+    enp0s3:
+      dhcp4: false
+    enp0s8:
+      addresses: [192.168.129.172/24]
+      nameservers:
+        addresses: [1.1.1.1, 8.8.8.8]
+</pre>
+</div>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>sudo netplan apply</pre>
+</div>
+
+</div>
+</div>
+
+
+<div class="section">
+<h2>Installation de BIND9</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+sudo apt update
+sudo apt install bind9 bind9-utils -y
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Activation du pare-feu UFW</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+sudo ufw enable
+sudo ufw allow bind9
+sudo ufw status
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Démarrage du service DNS</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+sudo systemctl start bind9
+sudo systemctl status bind9
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Configuration named.conf.options</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+options {
+    directory "/var/cache/bind";
+    listen-on { any; };
+    allow-query { localhost; 192.168.129.0/24; };
+    forwarders {
+        8.8.8.8;
+    };
+    dnssec-validation no;
+};
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Forcer IPv4</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+sudo nano /etc/default/named
+
+OPTIONS="-u bind -4"
+</pre>
+</div>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+sudo named-checkconf
+sudo systemctl restart bind9
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Déclaration des zones DNS</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+sudo nano /etc/bind/named.conf.local
+</pre>
+</div>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+zone "diarabaka.local" IN {
+    type master;
+    file "/etc/bind/zones/db.diarabaka.local";
+};
+
+zone "129.168.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/db.129.168.192";
+};
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Création des zones</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+sudo mkdir -p /etc/bind/zones
+sudo cp /etc/bind/db.local /etc/bind/zones/db.diarabaka.local
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Zone directe</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+$TTL 604800
+@       IN  SOA dns01.diarabaka.local. root.diarabaka.local. (
+                2
+           604800
+            86400
+          2419200
+           604800 )
+;
+        IN  NS  dns01.diarabaka.local.
+dns01   IN  A   192.168.129.172
+server  IN  CNAME dns01
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Zone inverse</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+$TTL 604800
+@       IN  SOA dns01.diarabaka.local. root.diarabaka.local. (
+                2
+           604800
+            86400
+          2419200
+           604800 )
+;
+        IN  NS  dns01.diarabaka.local.
+172     IN  PTR dns01.diarabaka.local.
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Vérification</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+sudo named-checkconf /etc/bind/named.conf.local
+sudo named-checkzone diarabaka.local /etc/bind/zones/db.diarabaka.local
+sudo named-checkzone 129.168.192.in-addr.arpa /etc/bind/zones/db.129.168.192
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Tests DNS</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+host dns01.diarabaka.local
+ping dns01.diarabaka.local
+host dns01
+host 192.168.129.172
+</pre>
+</div>
+
+</div>
+
+
+<div class="section">
+<h2>Sécurisation</h2>
+
+<div class="code">
+<button class="copy">Copy</button>
+<pre>
+sudo chown -R bind:bind /etc/bind/zones
+</pre>
+</div>
+
+</div>
+
+</div>
+
+<footer>
+DNS BIND9 Installation Guide • Linux Networking
+</footer>
+
+
+<script>
+
+document.querySelectorAll(".copy").forEach(btn=>{
+btn.onclick=function(){
+let text=this.nextElementSibling.innerText;
+navigator.clipboard.writeText(text);
+this.innerText="Copied";
+setTimeout(()=>this.innerText="Copy",1500);
+}
+})
+
+function toggle(id){
+let el=document.getElementById(id);
+if(el.style.display==="none"){
+el.style.display="block"
+}else{
+el.style.display="none"
+}
+}
+
+</script>
+
+</body>
+</html>
