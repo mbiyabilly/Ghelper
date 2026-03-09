@@ -1,107 +1,161 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DNS BIND9 Installation</title>
+<title>DNS BIND9 Installation - Bmbiya Ops</title>
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 
-body{
+:root{
+--bg:#0d0f14;
+--surface:#13161e;
+--surface2:#1a1e2a;
+--border:#252a38;
+--accent:#e85d26;
+--accent2:#f5893a;
+--text:#e8eaf0;
+--muted:#7a8099;
+}
+
+*{
 margin:0;
-font-family:Segoe UI,Arial;
-background:#0f172a;
-color:#e2e8f0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:var(--bg);
+color:var(--text);
+font-family:'Syne',sans-serif;
+line-height:1.7;
 }
 
 header{
-background:linear-gradient(90deg,#2563eb,#06b6d4);
-padding:30px;
-text-align:center;
-font-size:30px;
-font-weight:bold;
-letter-spacing:1px;
+position:sticky;
+top:0;
+background:rgba(13,15,20,.9);
+backdrop-filter:blur(10px);
+border-bottom:1px solid var(--border);
+padding:18px 40px;
+z-index:100;
+}
+
+.logo{
+font-weight:800;
+font-size:20px;
+color:var(--text);
+text-decoration:none;
 }
 
 .container{
-width:90%;
-max-width:1100px;
+max-width:900px;
 margin:auto;
-padding:40px 0;
+padding:60px 30px;
 }
 
-.card{
-background:#1e293b;
-border-radius:12px;
-padding:25px;
-margin-bottom:25px;
-box-shadow:0 0 15px rgba(0,0,0,0.5);
-transition:.3s;
-border-left:5px solid #38bdf8;
+h1{
+font-size:42px;
+margin-bottom:20px;
 }
 
-.card:hover{
-transform:translateY(-3px);
-box-shadow:0 10px 25px rgba(0,0,0,.6);
-}
-
-.card h2{
-margin-top:0;
-color:#38bdf8;
-}
-
-.description{
-color:#cbd5f5;
+h2{
+margin-top:50px;
 margin-bottom:15px;
+font-size:24px;
+color:var(--accent2);
 }
 
-.code{
-background:#020617;
-border-radius:8px;
-padding:15px;
-font-family:monospace;
+p{
+color:var(--muted);
+margin-bottom:20px;
+}
+
+ul{
+margin-left:20px;
+margin-bottom:20px;
+color:var(--muted);
+}
+
+code{
+background:var(--surface2);
+padding:3px 6px;
+border-radius:5px;
+font-family:'JetBrains Mono',monospace;
+color:var(--accent2);
+}
+
+pre{
+background:var(--surface);
+border:1px solid var(--border);
+padding:18px;
+border-radius:10px;
 overflow:auto;
 position:relative;
-margin-top:10px;
+margin-bottom:25px;
 }
 
-.code pre{
-margin:0;
-color:#22c55e;
+pre code{
+background:none;
+color:#e8eaf0;
+padding:0;
 }
 
-.copy{
+.copy-btn{
 position:absolute;
 top:10px;
 right:10px;
-border:none;
-background:#06b6d4;
-color:white;
-padding:5px 10px;
-border-radius:6px;
-cursor:pointer;
-font-size:12px;
-}
-
-.copy:hover{
-background:#0891b2;
-}
-
-.step{
-font-size:13px;
-background:#334155;
-display:inline-block;
+background:var(--surface2);
+border:1px solid var(--border);
+color:var(--muted);
 padding:4px 10px;
-border-radius:6px;
-margin-bottom:10px;
+font-size:12px;
+border-radius:5px;
+cursor:pointer;
+font-family:'Syne',sans-serif;
+}
+
+.copy-btn:hover{
+color:white;
+border-color:var(--accent);
+}
+
+.step-badge{
+font-size:12px;
+background:var(--surface2);
+border:1px solid var(--accent);
+color:var(--accent2);
+display:inline-block;
+padding:4px 12px;
+border-radius:20px;
+margin-bottom:12px;
+font-weight:700;
+letter-spacing:1px;
+text-transform:uppercase;
+}
+
+.diagram{
+background:var(--surface);
+border:1px solid var(--border);
+padding:20px;
+border-radius:10px;
+font-family:'JetBrains Mono',monospace;
+color:#ccc;
+margin-bottom:30px;
+white-space:pre;
+overflow-x:auto;
+font-size:13px;
 }
 
 footer{
 text-align:center;
-padding:25px;
-background:#020617;
-margin-top:40px;
-font-size:14px;
+padding:40px;
+border-top:1px solid var(--border);
+color:var(--muted);
+margin-top:60px;
+font-family:'Syne',sans-serif;
 }
 
 </style>
@@ -110,26 +164,55 @@ font-size:14px;
 <body>
 
 <header>
-DNS Server Installation • BIND9 on Ubuntu
+  <a class="logo" href="#">⚙️ Bmbiya Ops</a>
 </header>
 
 <div class="container">
 
+  <h1>Installation et Configuration d'un Serveur DNS</h1>
 
-<div class="card">
+  <p>
+    Un serveur <code>DNS (Domain Name System)</code> est indispensable dans les infrastructures réseau pour résoudre les noms de domaine en adresses IP, permettant aux machines de communiquer par nom plutôt que par adresse numérique.
+  </p>
 
-<div class="step">STEP 1</div>
-<h2>Static IP Configuration (Netplan)</h2>
+  <p>Ce guide explique comment :</p>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>sudo nano /etc/netplan/00-installer-config.yaml</pre>
-</div>
+  <ul>
+    <li>Installer et configurer BIND9 sous Ubuntu</li>
+    <li>Gérer les zones DNS directes et inverses</li>
+    <li>Configurer le pare-feu et forcer l'IPv4</li>
+    <li>Tester et sécuriser le service DNS</li>
+  </ul>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-network:
+
+  <h2>Schéma Réseau</h2>
+
+  <div class="diagram">
++-------------------+       +-------------------+       +----------------------+
+|   Client DNS      |       |   Serveur DNS     |       |   Forwarder/Internet |
+| (Résolution noms) | <---> | (BIND9 - enp0s8)  | <---> |   (8.8.8.8 / 1.1.1.1)|
++-------------------+       +-------------------+       +----------------------+
+       ▲                            |                              |
+       |                            ▼                              ▼
++-------------------+    +--------------------+       +-------------------+
+|   diarabaka.local |    | Zone Inverse       |       |   Internet        |
+| (DNS Forward)     |    | 129.168.192.arpa   |       | (DNS Externe)     |
++-------------------+    +--------------------+       +-------------------+
+  </div>
+
+
+  <h2><span class="step-badge">Step 1</span> Configuration IP statique (Netplan)</h2>
+
+  <p>Avant d'installer BIND9, configurez une adresse IP statique sur l'interface réseau afin que le serveur DNS soit toujours joignable à la même adresse.</p>
+
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo nano /etc/netplan/00-installer-config.yaml</code>
+  </pre>
+
+  <pre>
+<button class="copy-btn">copy</button>
+<code>network:
   version: 2
   ethernets:
     enp0s3:
@@ -137,225 +220,168 @@ network:
     enp0s8:
       addresses: [192.168.129.172/24]
       nameservers:
-        addresses: [1.1.1.1, 8.8.8.8]
-</pre>
-</div>
+        addresses: [1.1.1.1, 8.8.8.8]</code>
+  </pre>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>sudo netplan apply</pre>
-</div>
-
-</div>
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo netplan apply</code>
+  </pre>
 
 
-<div class="card">
+  <h2><span class="step-badge">Step 2</span> Installation de BIND9</h2>
 
-<div class="step">STEP 2</div>
-<h2>Install BIND9</h2>
+  <p>Installez BIND9 ainsi que ses utilitaires via apt. Le paquet <code>bind9-utils</code> fournit des outils de diagnostic comme <code>named-checkconf</code> et <code>named-checkzone</code>.</p>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-sudo apt update
-sudo apt install bind9 bind9-utils -y
-</pre>
-</div>
-
-</div>
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo apt update
+sudo apt install bind9 bind9-utils -y</code>
+  </pre>
 
 
-<div class="card">
+  <h2><span class="step-badge">Step 3</span> Activation du Pare-feu</h2>
 
-<div class="step">STEP 3</div>
-<h2>Enable Firewall</h2>
+  <p>Activez UFW et autorisez BIND9 à recevoir des requêtes DNS sur le port 53 (TCP et UDP).</p>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-sudo ufw enable
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo ufw enable
 sudo ufw allow bind9
-sudo ufw status
-</pre>
-</div>
-
-</div>
+sudo ufw status</code>
+  </pre>
 
 
-<div class="card">
+  <h2><span class="step-badge">Step 4</span> Démarrage du service BIND9</h2>
 
-<div class="step">STEP 4</div>
-<h2>Start BIND9 Service</h2>
+  <p>Démarrez le service et vérifiez qu'il est bien actif avant de procéder à la configuration.</p>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-sudo systemctl start bind9
-sudo systemctl status bind9
-</pre>
-</div>
-
-</div>
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo systemctl start bind9
+sudo systemctl status bind9</code>
+  </pre>
 
 
-<div class="card">
+  <h2><span class="step-badge">Step 5</span> Configuration principale du DNS</h2>
 
-<div class="step">STEP 5</div>
-<h2>Main DNS Configuration</h2>
+  <p>Éditez le fichier <code>named.conf.options</code> pour définir les options globales : écoute sur toutes les interfaces, restriction des requêtes au réseau local, et forwarder vers Google DNS.</p>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-sudo nano /etc/bind/named.conf.options
-</pre>
-</div>
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo nano /etc/bind/named.conf.options</code>
+  </pre>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-options {
-directory "/var/cache/bind";
-listen-on { any; };
-allow-query { localhost; 192.168.129.0/24; };
+  <pre>
+<button class="copy-btn">copy</button>
+<code>options {
+    directory "/var/cache/bind";
+    listen-on { any; };
+    allow-query { localhost; 192.168.129.0/24; };
 
-forwarders {
-8.8.8.8;
-};
+    forwarders {
+        8.8.8.8;
+    };
 
-dnssec-validation no;
-};
-</pre>
-</div>
-
-</div>
+    dnssec-validation no;
+};</code>
+  </pre>
 
 
-<div class="card">
+  <h2><span class="step-badge">Step 6</span> Forcer l'IPv4</h2>
 
-<div class="step">STEP 6</div>
-<h2>Force IPv4</h2>
+  <p>Par défaut, BIND9 peut tenter d'utiliser IPv6. Forcez l'IPv4 en modifiant les options de démarrage du daemon, puis vérifiez la configuration et redémarrez.</p>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-sudo nano /etc/default/named
-</pre>
-</div>
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo nano /etc/default/named</code>
+  </pre>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>OPTIONS="-u bind -4"</pre>
-</div>
+  <pre>
+<button class="copy-btn">copy</button>
+<code>OPTIONS="-u bind -4"</code>
+  </pre>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-sudo named-checkconf
-sudo systemctl restart bind9
-</pre>
-</div>
-
-</div>
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo named-checkconf
+sudo systemctl restart bind9</code>
+  </pre>
 
 
-<div class="card">
+  <h2><span class="step-badge">Step 7</span> Déclaration des Zones DNS</h2>
 
-<div class="step">STEP 7</div>
-<h2>Declare DNS Zones</h2>
+  <p>Déclarez la zone directe <code>diarabaka.local</code> et la zone inverse dans <code>named.conf.local</code>. Le type <code>master</code> indique que ce serveur fait autorité sur ces zones.</p>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-sudo nano /etc/bind/named.conf.local
-</pre>
-</div>
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo nano /etc/bind/named.conf.local</code>
+  </pre>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-zone "diarabaka.local" IN {
-type master;
-file "/etc/bind/zones/db.diarabaka.local";
+  <pre>
+<button class="copy-btn">copy</button>
+<code>zone "diarabaka.local" IN {
+    type master;
+    file "/etc/bind/zones/db.diarabaka.local";
 };
 
 zone "129.168.192.in-addr.arpa" {
-type master;
-file "/etc/bind/zones/db.129.168.192";
-};
-</pre>
-</div>
-
-</div>
+    type master;
+    file "/etc/bind/zones/db.129.168.192";
+};</code>
+  </pre>
 
 
-<div class="card">
+  <h2><span class="step-badge">Step 8</span> Création des fichiers de zone</h2>
 
-<div class="step">STEP 8</div>
-<h2>Create DNS Zone Files</h2>
+  <p>Créez le répertoire des zones et copiez le fichier modèle <code>db.local</code> comme base pour votre zone DNS locale.</p>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-sudo mkdir -p /etc/bind/zones
-sudo cp /etc/bind/db.local /etc/bind/zones/db.diarabaka.local
-</pre>
-</div>
-
-</div>
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo mkdir -p /etc/bind/zones
+sudo cp /etc/bind/db.local /etc/bind/zones/db.diarabaka.local</code>
+  </pre>
 
 
-<div class="card">
+  <h2><span class="step-badge">Step 9</span> Tests DNS</h2>
 
-<div class="step">STEP 9</div>
-<h2>DNS Testing</h2>
+  <p>Vérifiez que la résolution de noms fonctionne correctement — dans les deux sens (nom → IP et IP → nom).</p>
 
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-host dns01.diarabaka.local
+  <pre>
+<button class="copy-btn">copy</button>
+<code>host dns01.diarabaka.local
 ping dns01.diarabaka.local
 host dns01
-host 192.168.129.172
-</pre>
-</div>
+host 192.168.129.172</code>
+  </pre>
+
+
+  <h2><span class="step-badge">Step 10</span> Sécurité</h2>
+
+  <p>Assurez-vous que les fichiers de zone appartiennent bien à l'utilisateur <code>bind</code> afin d'éviter tout problème de permissions au démarrage du service.</p>
+
+  <pre>
+<button class="copy-btn">copy</button>
+<code>sudo chown -R bind:bind /etc/bind/zones</code>
+  </pre>
 
 </div>
-
-
-<div class="card">
-
-<div class="step">STEP 10</div>
-<h2>Security</h2>
-
-<div class="code">
-<button class="copy">copy</button>
-<pre>
-sudo chown -R bind:bind /etc/bind/zones
-</pre>
-</div>
-
-</div>
-
-
-</div>
-
 
 <footer>
-Linux Infrastructure Guide • DNS BIND9
+  Built by <strong>Bmbiya Ops</strong> · Linux Infrastructure Guide · DNS BIND9
 </footer>
 
-
 <script>
+const buttons = document.querySelectorAll(".copy-btn");
 
-document.querySelectorAll(".copy").forEach(btn=>{
-btn.onclick=()=>{
-let code=btn.nextElementSibling.innerText;
-navigator.clipboard.writeText(code);
-btn.innerText="copied";
-setTimeout(()=>btn.innerText="copy",1200);
-}
-})
-
+buttons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const code = btn.nextElementSibling.innerText.trim();
+    navigator.clipboard.writeText(code);
+    btn.innerText = "copied";
+    setTimeout(() => btn.innerText = "copy", 2000);
+  });
+});
 </script>
 
 </body>
