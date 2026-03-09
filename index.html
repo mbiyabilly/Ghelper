@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFITech SysAdmin Scripts</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e2a;
+      --border: #252a38;
+      --accent: #e85d26;
+      --accent2: #f5893a;
+      --text: #e8eaf0;
+      --muted: #7a8099;
+      --green: #3ecf8e;
+      --blue: #4da6ff;
+      --purple: #a78bfa;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* NOISE TEXTURE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13, 15, 20, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 60px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 1.1rem;
+      white-space: nowrap;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-left: auto;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    .nav-github {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface2) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 100px 2rem 80px;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(232, 93, 38, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(232, 93, 38, 0.1);
+      border: 1px solid rgba(232, 93, 38, 0.3);
+      color: var(--accent2);
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+      letter-spacing: 0.05em;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 48px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent2);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* SEARCH */
+    .search-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 60px;
+    }
+
+    .search-wrap {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 48px 14px 48px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232, 93, 38, 0.1);
+    }
+
+    .search-input::placeholder { color: var(--muted); }
+
+    .search-kbd {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* FILTER TABS */
+    .filter-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Syne', sans-serif;
+    }
+
+    .tab:hover, .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* CARDS GRID */
+    .cards-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 80px;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .card:hover {
+      border-color: rgba(232, 93, 38, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .card-desc {
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+    }
+
+    .card-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 3px 10px;
+      border-radius: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tag-green { background: rgba(62, 207, 142, 0.12); color: var(--green); }
+    .tag-blue  { background: rgba(77, 166, 255, 0.12); color: var(--blue); }
+    .tag-purple{ background: rgba(167, 139, 250, 0.12); color: var(--purple); }
+    .tag-orange{ background: rgba(232, 93, 38, 0.12);  color: var(--accent2); }
+
+    .card-arrow {
+      color: var(--muted);
+      font-size: 1rem;
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .card:hover .card-arrow {
+      transform: translateX(4px);
+      color: var(--accent2);
+    }
+
+    .no-results {
+      text-align: center;
+      color: var(--muted);
+      padding: 60px 0;
+      font-size: 1rem;
+      display: none;
+    }
+
+    /* FAQ */
+    .faq-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 2rem 100px;
+    }
+
+    .faq-title {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .faq-subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 48px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .faq-item.open {
+      border-color: rgba(232, 93, 38, 0.4);
+    }
+
+    .faq-q {
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      background: var(--surface);
+      user-select: none;
+      gap: 16px;
+    }
+
+    .faq-q:hover { background: var(--surface2); }
+
+    .faq-chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-chevron { transform: rotate(180deg); color: var(--accent2); }
+
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.2s;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      padding: 0 22px;
+    }
+
+    .faq-a.open {
+      max-height: 300px;
+      padding: 0 22px 18px;
+    }
+
+    .faq-a code {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent2);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    footer a { color: var(--accent2); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+      .hero-stats { gap: 2rem; }
+      .nav-links a:not(.nav-github) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">⚙️</div>
+      CFITech Ops
+    </a>
+    <nav class="nav-links">
+      <a href="#scripts">Scripts</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/cfitechops/SysAdmin" target="_blank" class="nav-github">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+        GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">✦ CFITECH TSPCR · SysAdmin &amp; Network</div>
+  <h1>Your SysAdmin<br/><span>Script Library</span></h1>
+  <p>Production-ready guides and scripts for Linux servers, networking, monitoring, and infrastructure management.</p>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">13+</div>
+      <div class="stat-label">Guides</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5</div>
+      <div class="stat-label">Categories</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">176</div>
+      <div class="stat-label">Commits</div>
+    </div>
+  </div>
+</section>
+
+<!-- SEARCH -->
+<div class="search-section">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search scripts... (e.g. nginx, dns, wazuh)" autocomplete="off" />
+    <span class="search-kbd">⌘K</span>
+  </div>
+</div>
+
+<!-- FILTER TABS -->
+<div class="cards-section">
+  <div class="filter-tabs" id="filterTabs">
+    <button class="tab active" data-cat="all">All</button>
+    <button class="tab" data-cat="web">Web Servers</button>
+    <button class="tab" data-cat="db">Databases</button>
+    <button class="tab" data-cat="network">Networking</button>
+    <button class="tab" data-cat="monitoring">Monitoring</button>
+    <button class="tab" data-cat="storage">Storage</button>
+  </div>
+
+  <div class="section-title" id="scripts">Scripts &amp; Guides</div>
+
+  <div class="cards-grid" id="cardsGrid">
+
+    <!-- APACHE -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/APACHE.md" target="_blank" data-cat="web" data-name="apache web server">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(232,93,38,0.12)">🌐</div>
+        <div class="card-title">Apache</div>
+      </div>
+      <div class="card-desc">Install and configure the Apache HTTP Server. Includes virtual hosts, SSL setup, and .htaccess management.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-orange">Web Server</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- NGINX -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/NGINX.md" target="_blank" data-cat="web" data-name="nginx reverse proxy web server">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(62,207,142,0.12)">⚡</div>
+        <div class="card-title">NGINX</div>
+      </div>
+      <div class="card-desc">High-performance web server and reverse proxy. Configure load balancing, SSL termination, and static file serving.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-green">Web Server</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- LAMP Stack -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/LAMP-Stack.md" target="_blank" data-cat="web" data-name="lamp stack linux apache mysql php">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(245,137,58,0.12)">🔥</div>
+        <div class="card-title">LAMP Stack</div>
+      </div>
+      <div class="card-desc">Full Linux, Apache, MySQL/MariaDB, PHP stack setup. The classic server environment for web applications.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-orange">Stack</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- DNS -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/DNS.md" target="_blank" data-cat="network" data-name="dns bind name server">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(77,166,255,0.12)">🌍</div>
+        <div class="card-title">DNS Server</div>
+      </div>
+      <div class="card-desc">Setup BIND9 DNS server with forward and reverse zones. Internal name resolution for your infrastructure.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-blue">Networking</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- DHCP -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/DHCP.md" target="_blank" data-cat="network" data-name="dhcp isc server ip address">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(77,166,255,0.12)">📡</div>
+        <div class="card-title">DHCP Server</div>
+      </div>
+      <div class="card-desc">Configure ISC DHCP server for automatic IP address allocation, static leases, and network boot options.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-blue">Networking</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- FTPS -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/FTPS.md" target="_blank" data-cat="storage" data-name="ftp ftps vsftpd file transfer">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(167,139,250,0.12)">📂</div>
+        <div class="card-title">FTPS Server</div>
+      </div>
+      <div class="card-desc">Secure FTP over TLS with vsftpd. Configure user chroot jails, passive mode, and SSL certificates.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-purple">Storage</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- GLPI -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/GLPI.md" target="_blank" data-cat="monitoring" data-name="glpi itsm helpdesk asset management">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(62,207,142,0.12)">🎫</div>
+        <div class="card-title">GLPI</div>
+      </div>
+      <div class="card-desc">IT Asset Management and Helpdesk platform. Inventory, ticketing, and ITIL workflows for your organization.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-green">ITSM</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- MariaDB -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/MariaDB.md" target="_blank" data-cat="db" data-name="mariadb mysql database">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(77,166,255,0.12)">🗄️</div>
+        <div class="card-title">MariaDB</div>
+      </div>
+      <div class="card-desc">MySQL-compatible relational database. Install, secure, and tune MariaDB for production workloads.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-blue">Database</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- PostgreSQL -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/PostgreSQL.md" target="_blank" data-cat="db" data-name="postgresql postgres database">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(77,166,255,0.12)">🐘</div>
+        <div class="card-title">PostgreSQL</div>
+      </div>
+      <div class="card-desc">Advanced open-source relational database. Setup with roles, remote access, backups, and performance tuning.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-blue">Database</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- Nagios -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/Nagios.md" target="_blank" data-cat="monitoring" data-name="nagios monitoring alerts">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(232,93,38,0.12)">📊</div>
+        <div class="card-title">Nagios</div>
+      </div>
+      <div class="card-desc">Infrastructure monitoring and alerting. Monitor hosts, services, and receive notifications when things break.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-orange">Monitoring</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- NextCloud -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/NextCloud.md" target="_blank" data-cat="storage" data-name="nextcloud cloud storage self-hosted">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(62,207,142,0.12)">☁️</div>
+        <div class="card-title">NextCloud</div>
+      </div>
+      <div class="card-desc">Self-hosted cloud platform for file sync, sharing, and collaboration. Full Nextcloud installation with HTTPS.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-green">Storage</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- Samba -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/blob/main/Samba.md" target="_blank" data-cat="storage" data-name="samba smb windows file sharing">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(167,139,250,0.12)">🗂️</div>
+        <div class="card-title">Samba</div>
+      </div>
+      <div class="card-desc">Windows-compatible file and print sharing with Samba. SMB shares, Active Directory integration, and user management.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-purple">Storage</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- Wazuh -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/tree/main/Wazuh" target="_blank" data-cat="monitoring" data-name="wazuh siem security monitoring xdr">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(232,93,38,0.12)">🛡️</div>
+        <div class="card-title">Wazuh</div>
+      </div>
+      <div class="card-desc">Open-source SIEM and XDR platform. Threat detection, integrity monitoring, vulnerability assessment, and incident response.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-orange">Security</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- Applications -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/tree/main/Applications" target="_blank" data-cat="all" data-name="applications misc tools">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(167,139,250,0.12)">📦</div>
+        <div class="card-title">Applications</div>
+      </div>
+      <div class="card-desc">Collection of various application installations and configuration guides for Linux environments.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-purple">Misc</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- Infrastructures -->
+    <a class="card" href="https://github.com/cfitechops/SysAdmin/tree/main/infrastructures" target="_blank" data-cat="network" data-name="infrastructure network architecture">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(77,166,255,0.12)">🏗️</div>
+        <div class="card-title">Infrastructure</div>
+      </div>
+      <div class="card-desc">Network infrastructure diagrams, architecture references, and deployment topology guides.</div>
+      <div class="card-footer">
+        <span class="card-tag tag-blue">Architecture</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+  <div class="no-results" id="noResults">No scripts found for "<span id="searchTerm"></span>"</div>
+</div>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="faq-title">Frequently Asked Questions</div>
+  <p class="faq-subtitle">Common questions about using these scripts and guides</p>
+
+  <div class="faq-item">
+    <div class="faq-q">
+      What Linux distros do these guides support?
+      <span class="faq-chevron">▾</span>
+    </div>
+    <div class="faq-a">Most guides are written for <code>Debian/Ubuntu</code> based systems. Commands using <code>apt</code>, <code>systemctl</code>, and standard Linux paths are assumed. Always check the guide header for any specific distro requirements before running commands.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">
+      Do I need root access to run these scripts?
+      <span class="faq-chevron">▾</span>
+    </div>
+    <div class="faq-a">Yes, most server configuration tasks require elevated privileges. You can run commands with <code>sudo</code> or switch to root with <code>sudo -i</code>. Never run scripts blindly as root — always read through them first.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">
+      How do I report a bug or suggest an improvement?
+      <span class="faq-chevron">▾</span>
+    </div>
+    <div class="faq-a">Open an issue on the <a href="https://github.com/cfitechops/SysAdmin/issues" target="_blank" style="color:var(--accent2)">GitHub Issues page</a>. Include your OS version, the exact command that failed, and the full error output. Pull requests are also welcome!</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">
+      Are these production-ready or just for learning?
+      <span class="faq-chevron">▾</span>
+    </div>
+    <div class="faq-a">Both! The guides follow best practices for real deployments. However, always review configurations for your specific security requirements — especially for public-facing services like Apache, NGINX, and Wazuh. Test in a staging environment first.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">
+      How do I keep installed services up to date?
+      <span class="faq-chevron">▾</span>
+    </div>
+    <div class="faq-a">For packages installed via <code>apt</code>, run <code>sudo apt update && sudo apt upgrade</code> regularly. For applications installed from source or third-party repos, check the vendor's update process — it varies per application.</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  Built by <a href="https://github.com/mbiyabilly" target="_blank">mbiyabilly</a> ·
+  Source on <a href="https://github.com/cfitechops/SysAdmin" target="_blank">GitHub</a> ·
+  CFITECH TSPCR — Administrateur·rice Système et Réseau
+</footer>
+
+<script>
+  // SEARCH
+  const input = document.getElementById('searchInput');
+  const cards = document.querySelectorAll('.card');
+  const noResults = document.getElementById('noResults');
+  const searchTerm = document.getElementById('searchTerm');
+
+  function filterCards() {
+    const q = input.value.toLowerCase().trim();
+    const activeCat = document.querySelector('.tab.active').dataset.cat;
+    let visible = 0;
+
+    cards.forEach(card => {
+      const name = card.dataset.name || '';
+      const cat = card.dataset.cat || '';
+      const matchesSearch = !q || name.includes(q) || card.innerText.toLowerCase().includes(q);
+      const matchesCat = activeCat === 'all' || cat === activeCat;
+
+      if (matchesSearch && matchesCat) {
+        card.style.display = '';
+        visible++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+    searchTerm.textContent = input.value;
+  }
+
+  input.addEventListener('input', filterCards);
+
+  // Keyboard shortcut
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      input.focus();
+    }
+  });
+
+  // FILTER TABS
+  document.getElementById('filterTabs').addEventListener('click', e => {
+    if (!e.target.classList.contains('tab')) return;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    filterCards();
+  });
+
+  // FAQ ACCORDION
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const answer = item.querySelector('.faq-a');
+      const isOpen = item.classList.contains('open');
+
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-a').classList.remove('open');
+      });
+
+      if (!isOpen) {
+        item.classList.add('open');
+        answer.classList.add('open');
+      }
+    });
+  });
+</script>
+</body>
+</html>
