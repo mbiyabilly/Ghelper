@@ -3,82 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Installation DNS - BIND9</title>
+<title>DNS BIND9 Installation</title>
 
 <style>
 
 body{
-    margin:0;
-    font-family:Segoe UI,Arial;
-    background:#0f172a;
-    color:#e2e8f0;
+margin:0;
+font-family:Segoe UI,Arial;
+background:#0f172a;
+color:#e2e8f0;
 }
 
 header{
-    background:linear-gradient(90deg,#2563eb,#06b6d4);
-    padding:25px;
-    text-align:center;
-    font-size:28px;
-    font-weight:bold;
+background:linear-gradient(90deg,#2563eb,#06b6d4);
+padding:30px;
+text-align:center;
+font-size:30px;
+font-weight:bold;
+letter-spacing:1px;
 }
 
 .container{
-    width:90%;
-    max-width:1100px;
-    margin:auto;
-    padding:30px 0;
+width:90%;
+max-width:1100px;
+margin:auto;
+padding:40px 0;
 }
 
-.section{
-    background:#1e293b;
-    margin-bottom:20px;
-    border-radius:10px;
-    padding:20px;
-    box-shadow:0 0 15px rgba(0,0,0,0.5);
+.card{
+background:#1e293b;
+border-radius:12px;
+padding:25px;
+margin-bottom:25px;
+box-shadow:0 0 15px rgba(0,0,0,0.5);
+transition:.3s;
+border-left:5px solid #38bdf8;
 }
 
-.section h2{
-    color:#38bdf8;
+.card:hover{
+transform:translateY(-3px);
+box-shadow:0 10px 25px rgba(0,0,0,.6);
+}
+
+.card h2{
+margin-top:0;
+color:#38bdf8;
+}
+
+.description{
+color:#cbd5f5;
+margin-bottom:15px;
 }
 
 .code{
-    background:#020617;
-    padding:15px;
-    border-radius:8px;
-    font-family:monospace;
-    overflow:auto;
-    position:relative;
+background:#020617;
+border-radius:8px;
+padding:15px;
+font-family:monospace;
+overflow:auto;
+position:relative;
+margin-top:10px;
 }
 
-button.copy{
-    position:absolute;
-    right:10px;
-    top:10px;
-    background:#38bdf8;
-    border:none;
-    padding:6px 12px;
-    border-radius:6px;
-    cursor:pointer;
-    font-weight:bold;
+.code pre{
+margin:0;
+color:#22c55e;
 }
 
-button.copy:hover{
-    background:#0ea5e9;
+.copy{
+position:absolute;
+top:10px;
+right:10px;
+border:none;
+background:#06b6d4;
+color:white;
+padding:5px 10px;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
 }
 
-.toggle{
-    cursor:pointer;
-    color:#22c55e;
-    margin-bottom:10px;
-    display:inline-block;
+.copy:hover{
+background:#0891b2;
+}
+
+.step{
+font-size:13px;
+background:#334155;
+display:inline-block;
+padding:4px 10px;
+border-radius:6px;
+margin-bottom:10px;
 }
 
 footer{
-    text-align:center;
-    padding:20px;
-    background:#020617;
-    margin-top:40px;
-    font-size:14px;
+text-align:center;
+padding:25px;
+background:#020617;
+margin-top:40px;
+font-size:14px;
 }
 
 </style>
@@ -87,29 +110,24 @@ footer{
 <body>
 
 <header>
-Serveur DNS avec BIND9 sur Ubuntu Server
+DNS Server Installation • BIND9 on Ubuntu
 </header>
 
 <div class="container">
 
-<div class="section">
-<h2>Configuration IP statique avec Netplan</h2>
 
-<div class="toggle" onclick="toggle('netplan')">Afficher / Masquer</div>
+<div class="card">
 
-<div id="netplan">
-
-<p>Édition du fichier :</p>
+<div class="step">STEP 1</div>
+<h2>Static IP Configuration (Netplan)</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>sudo nano /etc/netplan/00-installer-config.yaml</pre>
 </div>
 
-<p>Contenu :</p>
-
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 network:
   version: 2
@@ -124,19 +142,20 @@ network:
 </div>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>sudo netplan apply</pre>
 </div>
 
 </div>
-</div>
 
 
-<div class="section">
-<h2>Installation de BIND9</h2>
+<div class="card">
+
+<div class="step">STEP 2</div>
+<h2>Install BIND9</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 sudo apt update
 sudo apt install bind9 bind9-utils -y
@@ -146,11 +165,13 @@ sudo apt install bind9 bind9-utils -y
 </div>
 
 
-<div class="section">
-<h2>Activation du pare-feu UFW</h2>
+<div class="card">
+
+<div class="step">STEP 3</div>
+<h2>Enable Firewall</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 sudo ufw enable
 sudo ufw allow bind9
@@ -161,11 +182,13 @@ sudo ufw status
 </div>
 
 
-<div class="section">
-<h2>Démarrage du service DNS</h2>
+<div class="card">
+
+<div class="step">STEP 4</div>
+<h2>Start BIND9 Service</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 sudo systemctl start bind9
 sudo systemctl status bind9
@@ -175,20 +198,31 @@ sudo systemctl status bind9
 </div>
 
 
-<div class="section">
-<h2>Configuration named.conf.options</h2>
+<div class="card">
+
+<div class="step">STEP 5</div>
+<h2>Main DNS Configuration</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
+<pre>
+sudo nano /etc/bind/named.conf.options
+</pre>
+</div>
+
+<div class="code">
+<button class="copy">copy</button>
 <pre>
 options {
-    directory "/var/cache/bind";
-    listen-on { any; };
-    allow-query { localhost; 192.168.129.0/24; };
-    forwarders {
-        8.8.8.8;
-    };
-    dnssec-validation no;
+directory "/var/cache/bind";
+listen-on { any; };
+allow-query { localhost; 192.168.129.0/24; };
+
+forwarders {
+8.8.8.8;
+};
+
+dnssec-validation no;
 };
 </pre>
 </div>
@@ -196,20 +230,25 @@ options {
 </div>
 
 
-<div class="section">
-<h2>Forcer IPv4</h2>
+<div class="card">
+
+<div class="step">STEP 6</div>
+<h2>Force IPv4</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 sudo nano /etc/default/named
-
-OPTIONS="-u bind -4"
 </pre>
 </div>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
+<pre>OPTIONS="-u bind -4"</pre>
+</div>
+
+<div class="code">
+<button class="copy">copy</button>
 <pre>
 sudo named-checkconf
 sudo systemctl restart bind9
@@ -219,27 +258,29 @@ sudo systemctl restart bind9
 </div>
 
 
-<div class="section">
-<h2>Déclaration des zones DNS</h2>
+<div class="card">
+
+<div class="step">STEP 7</div>
+<h2>Declare DNS Zones</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 sudo nano /etc/bind/named.conf.local
 </pre>
 </div>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 zone "diarabaka.local" IN {
-    type master;
-    file "/etc/bind/zones/db.diarabaka.local";
+type master;
+file "/etc/bind/zones/db.diarabaka.local";
 };
 
 zone "129.168.192.in-addr.arpa" {
-    type master;
-    file "/etc/bind/zones/db.129.168.192";
+type master;
+file "/etc/bind/zones/db.129.168.192";
 };
 </pre>
 </div>
@@ -247,11 +288,13 @@ zone "129.168.192.in-addr.arpa" {
 </div>
 
 
-<div class="section">
-<h2>Création des zones</h2>
+<div class="card">
+
+<div class="step">STEP 8</div>
+<h2>Create DNS Zone Files</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 sudo mkdir -p /etc/bind/zones
 sudo cp /etc/bind/db.local /etc/bind/zones/db.diarabaka.local
@@ -261,71 +304,13 @@ sudo cp /etc/bind/db.local /etc/bind/zones/db.diarabaka.local
 </div>
 
 
-<div class="section">
-<h2>Zone directe</h2>
+<div class="card">
+
+<div class="step">STEP 9</div>
+<h2>DNS Testing</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
-<pre>
-$TTL 604800
-@       IN  SOA dns01.diarabaka.local. root.diarabaka.local. (
-                2
-           604800
-            86400
-          2419200
-           604800 )
-;
-        IN  NS  dns01.diarabaka.local.
-dns01   IN  A   192.168.129.172
-server  IN  CNAME dns01
-</pre>
-</div>
-
-</div>
-
-
-<div class="section">
-<h2>Zone inverse</h2>
-
-<div class="code">
-<button class="copy">Copy</button>
-<pre>
-$TTL 604800
-@       IN  SOA dns01.diarabaka.local. root.diarabaka.local. (
-                2
-           604800
-            86400
-          2419200
-           604800 )
-;
-        IN  NS  dns01.diarabaka.local.
-172     IN  PTR dns01.diarabaka.local.
-</pre>
-</div>
-
-</div>
-
-
-<div class="section">
-<h2>Vérification</h2>
-
-<div class="code">
-<button class="copy">Copy</button>
-<pre>
-sudo named-checkconf /etc/bind/named.conf.local
-sudo named-checkzone diarabaka.local /etc/bind/zones/db.diarabaka.local
-sudo named-checkzone 129.168.192.in-addr.arpa /etc/bind/zones/db.129.168.192
-</pre>
-</div>
-
-</div>
-
-
-<div class="section">
-<h2>Tests DNS</h2>
-
-<div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 host dns01.diarabaka.local
 ping dns01.diarabaka.local
@@ -337,11 +322,13 @@ host 192.168.129.172
 </div>
 
 
-<div class="section">
-<h2>Sécurisation</h2>
+<div class="card">
+
+<div class="step">STEP 10</div>
+<h2>Security</h2>
 
 <div class="code">
-<button class="copy">Copy</button>
+<button class="copy">copy</button>
 <pre>
 sudo chown -R bind:bind /etc/bind/zones
 </pre>
@@ -349,32 +336,25 @@ sudo chown -R bind:bind /etc/bind/zones
 
 </div>
 
+
 </div>
 
+
 <footer>
-DNS BIND9 Installation Guide • Linux Networking
+Linux Infrastructure Guide • DNS BIND9
 </footer>
 
 
 <script>
 
 document.querySelectorAll(".copy").forEach(btn=>{
-btn.onclick=function(){
-let text=this.nextElementSibling.innerText;
-navigator.clipboard.writeText(text);
-this.innerText="Copied";
-setTimeout(()=>this.innerText="Copy",1500);
+btn.onclick=()=>{
+let code=btn.nextElementSibling.innerText;
+navigator.clipboard.writeText(code);
+btn.innerText="copied";
+setTimeout(()=>btn.innerText="copy",1200);
 }
 })
-
-function toggle(id){
-let el=document.getElementById(id);
-if(el.style.display==="none"){
-el.style.display="block"
-}else{
-el.style.display="none"
-}
-}
 
 </script>
 
